@@ -367,7 +367,7 @@ function Publish-Module {
         $null = Microsoft.PowerShell.Management\New-Item -Path $tempModulePathForFormatVersion -ItemType Directory -Force -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -Confirm:$false -WhatIf:$false
 
         # Check if there is a .psgetignore
-        $psGetIgnore = Join-Path -Path $Path -ChildPath ".psgetignore"
+        $psGetIgnore = Microsoft.PowerShell.Management\Join-Path -Path $Path -ChildPath ".psgetignore"
         if (Microsoft.PowerShell.Management\Test-Path -Path $psGetIgnore) {
             # read .psgetignore excluding lines with comments and empty lines
             $exclude = Microsoft.PowerShell.Management\Get-Content -Path $PsGetIgnore |
