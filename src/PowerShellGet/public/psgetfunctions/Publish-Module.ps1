@@ -365,7 +365,20 @@ function Publish-Module {
         }
 
         $null = Microsoft.PowerShell.Management\New-Item -Path $tempModulePathForFormatVersion -ItemType Directory -Force -ErrorAction SilentlyContinue -WarningAction SilentlyContinue -Confirm:$false -WhatIf:$false
-        Microsoft.PowerShell.Management\Copy-Item -Path "$Path\*" -Destination $tempModulePathForFormatVersion -Force -Recurse -Confirm:$false -WhatIf:$false
+
+        # Check if there is a .psgetignore
+        $psGetIgnore = Join-Path -Path $Path -ChildPath ".psgetignore"
+        if (Microsoft.PowerShell.Management\Test-Path -Path $psGetIgnore) {
+            # read .psgetignore excluding lines with comments and empty lines
+            $exclude = Microsoft.PowerShell.Management\Get-Content -Path $PsGetIgnore |
+                Microsoft.PowerShell.Core\Where-Object { !$_.Trim().StartsWith("#") -and $_.Trim() -ne "" }
+            Microsoft.PowerShell.Management\Get-ChildItem -Path $Path -Exclude $exclude |
+                Microsoft.PowerShell.Management\Copy-Item -Recurse -Destination $tempModulePathForFormatVersion `
+                    -Force -Recurse -Confirm:$false -WhatIf:$false
+        }
+        else {
+            Microsoft.PowerShell.Management\Copy-Item -Path "$Path\*" -Destination $tempModulePathForFormatVersion -Force -Recurse -Confirm:$false -WhatIf:$false
+        }
 
         try {
             $manifestPath = Join-PathUtility -Path $tempModulePathForFormatVersion -ChildPath "$moduleName.psd1" -PathType File
